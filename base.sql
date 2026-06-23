@@ -1,3 +1,5 @@
+--Base de datos usada en sqlserver de microsoft, importanter crear el usuario con sus credenciales que aparecen el el .env para que funcione
+
 -- 1. Creación y uso de la Base de Datos
 CREATE DATABASE tianguis_stock;
 GO
