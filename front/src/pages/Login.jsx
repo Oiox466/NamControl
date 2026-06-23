@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { FaLock } from 'react-icons/fa6';
 
 function Login() {
   const [nombrePuesto, setNombrePuesto] = useState('');
@@ -17,7 +18,6 @@ function Login() {
     }
 
     try {
-      // Petición al Back-end
       const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
@@ -32,16 +32,13 @@ function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Muestra el error exacto que mande el controlador (ej: credenciales incorrectas)
         throw new Error(data.error || 'Error al iniciar sesión.');
       }
 
-      // Si las credenciales son válidas, guardamos los datos en el navegador
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('idComerciante', data.comerciante.id_comerciante);
       localStorage.setItem('nombrePuesto', data.comerciante.nombre_puesto);
       
-      // Redirección directa al Dashboard operativo
       navigate('/dashboard');
 
     } catch (err) {
@@ -52,12 +49,14 @@ function Login() {
   return (
     <div className="contenedor-auth">
       <div className="auth-header">
-        <span style={{ fontSize: '2.5rem' }}>🔐</span>
+        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: '#243474', display: 'flex', justifyContent: 'center' }}>
+          <FaLock />
+        </div>
         <h2>Ingresa a tu Puesto</h2>
         <p>Gestiona tus productos y actualiza tu stock en tiempo real.</p>
       </div>
 
-      {error && <div className="alerta-error">⚠️ {error}</div>}
+      {error && <div className="alerta-error" style={{ textAlign: 'center' }}>{error}</div>}
 
       <form onSubmit={handleLogin}>
         <div className="grupo-formulario">

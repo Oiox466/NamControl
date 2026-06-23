@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { FaStore } from 'react-icons/fa6';
 
 function Register() {
   const [nombrePuesto, setNombrePuesto] = useState('');
   const [comerciante, setComerciante] = useState('');
-  // Inicializamos con '1' que corresponde a 'Canasta Básica y Alimentos sin procesar'
   const [categoria, setCategoria] = useState('1'); 
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,7 +20,6 @@ function Register() {
     }
 
     try {
-      // Petición al Back-end
       const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: {
@@ -29,7 +28,7 @@ function Register() {
         body: JSON.stringify({
           nombre_puesto: nombrePuesto,
           nombre_comerciante: comerciante,
-          id_categoria: parseInt(categoria), // Aseguramos que viaje como número entero
+          id_categoria: parseInt(categoria),
           password: password
         }),
       });
@@ -37,13 +36,14 @@ function Register() {
       const data = await response.json();
 
       if (!response.ok) {
-        // Si el Back-end arroja un error (ej. status 400 o 500) lo mostramos
         throw new Error(data.error || 'Hubo un error al registrar el puesto.');
       }
 
       // Si todo sale bien, guardamos sesión local y navegamos al dashboard
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('nombrePuesto', nombrePuesto);
+      localStorage.setItem('idComerciante', data.id_comerciante || data.id); 
+      
       navigate('/dashboard');
 
     } catch (err) {
@@ -54,12 +54,14 @@ function Register() {
   return (
     <div className="contenedor-auth">
       <div className="auth-header">
-        <span style={{ fontSize: '2.5rem' }}>🏪</span>
+        <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: '#243474', display: 'flex', justifyContent: 'center' }}>
+          <FaStore />
+        </div>
         <h2>Registra tu Puesto</h2>
         <p>Únete al tianguis digital y publica tu stock hoy mismo.</p>
       </div>
 
-      {error && <div className="alerta-error">⚠️ {error}</div>}
+      {error && <div className="alerta-error" style={{ textAlign: 'center' }}>{error}</div>}
 
       <form onSubmit={handleRegister}>
         <div className="grupo-formulario">
@@ -88,11 +90,10 @@ function Register() {
           <label>Giro / Categoría</label>
           <select
             className="input-control"
-            style={{ backgroundColor: '#fff' }}
+            style={{ backgroundColor: '#fff', cursor: 'pointer' }}
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
           >
-            {/* Los values numéricos corresponden exactamente a los IDs de tu base de datos */}
             <option value="1">Canasta Básica y Alimentos sin procesar</option>
             <option value="2">Comidas, Bebidas y Antojitos</option>
             <option value="3">Artículos del Hogar y Herramientas</option>

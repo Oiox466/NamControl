@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+// Importamos toda la suite de iconos vectoriales necesarios
+import { FaStore, FaStar, FaRegStar, FaPen, FaTrash, FaPlus, FaRightFromBracket } from 'react-icons/fa6';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -54,7 +56,6 @@ function Dashboard() {
   };
 
   const handleOpenEditar = (prod) => {
-    // Los campos de la base de datos vienen mapeados como id_producto, nombre_producto, etc.
     setEditandoId(prod.id_producto);
     setFormNombre(prod.nombre_producto);
     setFormStock(prod.stock);
@@ -146,14 +147,16 @@ function Dashboard() {
       <div className="header-dashboard">
         <div>
           <span className="tag-panel">Panel de Control</span>
-          <h1 style={{ margin: '0.25rem 0 0 0', fontSize: '1.75rem', fontWeight: '900' }}>🏪 {nombrePuesto}</h1>
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0.25rem 0 0 0', fontSize: '1.75rem', fontWeight: '900' }}>
+            <FaStore style={{ color: '#243474' }} /> {nombrePuesto}
+          </h1>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button onClick={handleOpenCrear} className="btn-primario btn-verde" style={{ width: 'auto', padding: '0.6rem 1.25rem' }}>
-            + Agregar Producto
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <button onClick={handleOpenCrear} className="btn-primario btn-verde" style={{ width: 'auto', padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <FaPlus /> Agregar Producto
           </button>
-          <button onClick={handleLogout} className="btn-danger">
-            Salir
+          <button onClick={handleLogout} className="btn-danger" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <FaRightFromBracket /> Salir
           </button>
         </div>
       </div>
@@ -187,16 +190,20 @@ function Dashboard() {
                     <td>
                       <span className="badge-stock">{prod.stock} pz</span>
                     </td>
-                    <td style={{ textAlign: 'center', fontSize: '1.25rem' }}>
-                      {prod.destacado ? '⭐' : '⚪'}
+                    <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                      {prod.destacado ? (
+                        <FaStar style={{ color: '#d97706', fontSize: '1.2rem' }} />
+                      ) : (
+                        <FaRegStar style={{ color: '#d1d5db', fontSize: '1.2rem' }} />
+                      )}
                     </td>
                     <td style={{ padding: '0.5rem' }}>
                       <div className="acciones-flex" style={{ justifyContent: 'center' }}>
-                        <button onClick={() => handleOpenEditar(prod)} className="btn-accion-tabla btn-editar">
-                          ✏️ Editar
+                        <button onClick={() => handleOpenEditar(prod)} className="btn-accion-tabla btn-editar" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <FaPen style={{ fontSize: '0.75rem' }} /> Editar
                         </button>
-                        <button onClick={() => handleEliminar(prod.id_producto)} className="btn-accion-tabla btn-eliminar">
-                          🗑️ Eliminar
+                        <button onClick={() => handleEliminar(prod.id_producto)} className="btn-accion-tabla btn-eliminar" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <FaTrash style={{ fontSize: '0.75rem' }} /> Eliminar
                         </button>
                       </div>
                     </td>
@@ -212,7 +219,7 @@ function Dashboard() {
         <div className="modal-overlay">
           <div className="modal-content">
             <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', fontWeight: '900' }}>
-              {editandoId ? '✏️ Editar Producto' : '➕ Nuevo Producto'}
+              {editandoId ? 'Editar Producto' : 'Nuevo Producto'}
             </h3>
             <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '0 0 1.5rem 0' }}>
               Ingresa los datos para mantener actualizado tu stock.
@@ -253,7 +260,6 @@ function Dashboard() {
                 </div>
               </div>
 
-              {/* Implementación del requerimiento: Destacar productos */}
               <div className="grupo-formulario" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
                 <input
                   type="checkbox"
@@ -262,8 +268,8 @@ function Dashboard() {
                   onChange={(e) => setFormDestacado(e.target.checked)}
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
-                <label htmlFor="checkbox-destacado" style={{ margin: 0, cursor: 'pointer', fontWeight: 'bold' }}>
-                  ⭐ Destacar este producto en el Tianguis (Máx. 3)
+                <label htmlFor="checkbox-destacado" style={{ margin: 0, cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <FaStar style={{ color: '#d97706' }} /> Destacar este producto en el Tianguis (Máx. 3)
                 </label>
               </div>
 

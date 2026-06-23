@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
+import { FaArrowLeft, FaStore, FaMoneyBillTransfer, FaCircleCheck } from 'react-icons/fa6';
 
 export default function Puesto() {
   const { idPuesto } = useParams();
@@ -11,8 +12,8 @@ export default function Puesto() {
   const [cargando, setCargando] = useState(true);
 
   // --- ESTADOS PARA LA API EXTERNA DE MONEDAS ---
-  const [moneda, setMoneda] = useState('MXN'); // Moneda base predeterminada
-  const [tasasDeCambio, setTasasDeCambio] = useState({ MXN: 1, USD: 0.055, EUR: 0.051 }); // Tasas de respaldo
+  const [moneda, setMoneda] = useState('MXN'); 
+  const [tasasDeCambio, setTasasDeCambio] = useState({ MXN: 1, USD: 0.055, EUR: 0.051 }); 
 
   // 1. LLAMADA A LA API DE TIANGUIS (BACK-END)
   useEffect(() => {
@@ -41,11 +42,9 @@ export default function Puesto() {
   useEffect(() => {
     const obtenerTasasDivisas = async () => {
       try {
-        // Consultamos las equivalencias tomando el Peso Mexicano (MXN) como base
         const response = await fetch('https://open.er-api.com/v6/latest/MXN');
         if (response.ok) {
           const data = await response.json();
-          // Guardamos las tasas de cambio de la API de terceros
           setTasasDeCambio(data.rates);
         }
       } catch (err) {
@@ -58,8 +57,8 @@ export default function Puesto() {
 
   if (cargando) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '5rem', fontStyle: 'italic', color: '#666' }}>
-        Consultando el inventario disponible en el puesto... 📋
+      <div style={{ textAlign: 'center', marginTop: '5rem', fontStyle: 'italic', color: '#666', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+        <FaStore className="icono-giratorio" style={{ color: '#243474' }} /> Consultando el inventario disponible en el puesto...
       </div>
     );
   }
@@ -67,7 +66,9 @@ export default function Puesto() {
   if (error || !datosPuesto) {
     return (
       <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-        <p style={{ fontSize: '1.25rem', color: '#dc2626' }}>🏪 {error || 'Puesto no encontrado.'}</p>
+        <p style={{ fontSize: '1.25rem', color: '#dc2626', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+          <FaStore /> {error || 'Puesto no encontrado.'}
+        </p>
         <Link to="/" style={{ color: '#243474', textDecoration: 'underline' }}>Regresar al inicio</Link>
       </div>
     );
@@ -76,8 +77,8 @@ export default function Puesto() {
   return (
     <div style={{ padding: '2.5rem 1rem' }}>
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <Link to="/" style={{ color: '#666', fontWeight: 'bold', textDecoration: 'none', display: 'inline-block', marginBottom: '1.5rem' }}>
-          ⬅ Volver a locales
+        <Link to="/" style={{ color: '#666', fontWeight: 'bold', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+          <FaArrowLeft /> Volver a locales
         </Link>
 
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
@@ -90,23 +91,26 @@ export default function Puesto() {
           </span>
         </div>
 
-        {/* --- INTERFAZ SELECTOR DE DIVISAS (API EXTERNA) --- */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#4b5563' }}>Visualizar precios en:</span>
-          <select 
-            value={moneda} 
-            onChange={(e) => setMoneda(e.target.value)}
-            style={{ padding: '0.35rem 0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', backgroundColor: '#fff', fontSize: '0.875rem', fontWeight: '600', outline: 'none', cursor: 'pointer' }}
-          >
-            <option value="MXN">🇲🇽 MXN (Pesos)</option>
-            <option value="USD">🇺🇸 USD (Dólares)</option>
-            <option value="EUR">🇪🇺 EUR (Euros)</option>
-          </select>
+        <div className="contenedor-selector-divisa">
+          <span className="etiqueta-divisa">
+            <FaMoneyBillTransfer /> Visualizar precios en:
+          </span>
+          <div className="select-personalizado-wrapper">
+            <select 
+              value={moneda} 
+              onChange={(e) => setMoneda(e.target.value)}
+              className="select-divisa-premium"
+            >
+              <option value="MXN">MXN (Pesos)</option>
+              <option value="USD">USD (Dólares)</option>
+              <option value="EUR">EUR (Euros)</option>
+            </select>
+          </div>
         </div>
 
         {productos.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#9ca3af', fontStyle: 'italic', marginTop: '2rem' }}>
-            Este puesto se quedó sin mercancía por hoy. 🛒
+          <p style={{ textAlign: 'center', color: '#9ca3af', fontStyle: 'italic', marginTop: '2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+            <FaCircleCheck style={{ color: '#9ca3af' }} /> Este puesto se quedó sin mercancía por hoy.
           </p>
         ) : (
           <div className="lista-productos-vertical">
@@ -116,11 +120,10 @@ export default function Puesto() {
                 producto={{
                   id: prod.id_producto,
                   nombre: prod.nombre_producto,
-                  // Multiplicamos el precio base en pesos por la tasa de cambio seleccionada
                   precio: prod.precio * (tasasDeCambio[moneda] || 1),
                   stock: prod.stock,
                   destacado: prod.destacado,
-                  divisa: moneda // Le pasamos el texto (MXN, USD, EUR) para que pinte el símbolo correcto
+                  divisa: moneda 
                 }} 
               />
             ))}

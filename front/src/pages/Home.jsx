@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TianguisCard from '../components/TianguisCard';
+import { FaMagnifyingGlass } from 'react-icons/fa6'; // <-- Importamos el icono de la lupa
 
 export default function Home() {
   const [busqueda, setBusqueda] = useState('');
@@ -38,21 +39,37 @@ export default function Home() {
           <h1 className="titulo-seccion">Locales del Tianguis</h1>
         </div>
 
+        {/* --- CONTENEDOR DEL BUSCADOR OPTIMIZADO --- */}
         <div style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
-          <input
-            type="text"
-            placeholder="🔍 Busca por puesto o categoría..."
-            style={{
-              width: '100%',
-              maxWidth: '500px',
-              padding: '1rem',
-              borderRadius: '0.75rem',
-              border: '1px solid #ccc',
-              fontSize: '1.125rem'
-            }}
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
+          <div style={{ position: 'relative', maxWidth: '500px', margin: '0 auto' }}>
+            {/* Icono de lupa posicionado de manera absoluta a la izquierda del input */}
+            <FaMagnifyingGlass 
+              style={{
+                position: 'absolute',
+                left: '1rem',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#9ca3af',
+                fontSize: '1.1rem',
+                pointerEvents: 'none'
+              }} 
+            />
+            <input
+              type="text"
+              placeholder="Busca por puesto o categoría..."
+              style={{
+                width: '100%',
+                padding: '1rem 1rem 1rem 2.75rem', /* Aumentamos el padding izquierdo para que el texto no pise la lupa */
+                borderRadius: '0.75rem',
+                border: '1px solid #ccc',
+                fontSize: '1.125rem',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+          </div>
         </div>
 
         {error && <div className="alerta-error" style={{ textAlign: 'center' }}>⚠️ {error}</div>}

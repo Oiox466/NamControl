@@ -1,7 +1,7 @@
 import React from 'react';
+import { FaStar, FaCartShopping } from 'react-icons/fa6';
 
 export default function ProductCard({ producto }) {
-  // Función auxiliar para formatear el símbolo de la moneda dinámicamente
   const obtenerSimboloMoneda = () => {
     if (!producto.divisa || producto.divisa === 'MXN') return '$';
     if (producto.divisa === 'USD') return 'USD $';
@@ -12,9 +12,12 @@ export default function ProductCard({ producto }) {
   return (
     <div className="tarjeta-producto" style={{ position: 'relative' }}>
       
-      {/* Icono dinámico: Si el producto es estrella, cambia el carrito por una estrella brillante */}
-      <div className="producto-imagen-lateral">
-        {producto.destacado ? '⭐' : '🛒'}
+      <div className="producto-imagen-lateral" style={{ color: '#ffffff' }}>
+        {producto.destacado ? (
+          <FaStar style={{ transform: 'scale(1.2)' }} />
+        ) : (
+          <FaCartShopping />
+        )}
       </div>
       
       <div className="producto-info-lateral">
