@@ -14,9 +14,17 @@ export default function TianguisCard({ puesto }) {
         <div>
           <p style={{ fontWeight: 'bold', fontSize: '0.875rem', margin: '0' }}>Productos estrella</p>
           <ul className="lista-estrella">
-            <li>o) Producto A</li>
-            <li>o) Producto B</li>
-            <li>o) Producto C</li>
+            {puesto.estrellas && puesto.estrellas.length > 0 ? (
+              puesto.estrellas.map((prod) => (
+                <key key={prod.id_producto}>
+                  <li>🔸 {prod.nombre_producto}</li>
+                </key>
+              ))
+            ) : (
+              <li style={{ listStyleType: 'none', fontStyle: 'italic', color: '#9ca3af' }}>
+                Sin destacados por ahora
+              </li>
+            )}
           </ul>
         </div>
         

@@ -1,39 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import ProductCard from '../components/ProductCard';
-
-const mockTianguis = [
-  {
-    id: 1,
-    nombrePuesto: "El Palacio de las Papas",
-    comerciante: "Don Chencho",
-    categoria: "Frutas y Verduras",
-    productos: [
-      { id: 101, nombre: "Papa Alfa", stock: "45 kg", precio: "$22.00/kg" },
-      { id: 102, nombre: "Cebolla Bola", stock: "12 kg", precio: "$18.00/kg" },
-      { id: 103, nombre: "Jitomate Saladet", stock: "0 kg", precio: "$28.00/kg" }
-    ]
-  },
-  {
-    id: 2,
-    nombrePuesto: "Novedades y Ropa 'La Güera'",
-    comerciante: "Doña Mary",
-    categoria: "Ropa y Calzado",
-    productos: [
-      { id: 201, nombre: "Playeras tipo Polo", stock: "15 pzas", precio: "$120.00/c u" },
-      { id: 202, nombre: "Calcetines (Paquete de 3)", stock: "40 pzas", precio: "$50.00" }
-    ]
-  }
-];
+import ProductCard from '../components/ProductCard'; // <-- Importas el hijo
 
 export default function Puesto() {
   const { idPuesto } = useParams();
-  const puesto = mockTianguis.find(p => p.id === parseInt(idPuesto));
+  
+  const [datosPuesto, setDatosPuesto] = useState(null);
+  const [productos, setProductos] = useState([]);
+  const [error, setError] = useState('');
+  const [cargando, setCargando] = useState(true);
 
-  if (!puesto) {
+  useEffect(() => {
+    const obtenerDetallePuesto = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/tianguis/puesto/${idPuesto}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'No se pudo conectar con el puesto.');
+        }
+
+        setDatosPuesto(data.puesto);
+        setProductos(data.productos);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    obtenerDetallePuesto();
+  }, [idPuesto]);
+
+  if (cargando) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: '5rem', fontStyle: 'italic', color: '#666' }}>
+        Consultando el inventario disponible en el puesto... 📋
+      </div>
+    );
+  }
+
+  if (error || !datosPuesto) {
     return (
       <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-        <p style={{ fontSize: '1.25rem', color: '#666' }}>🏪 Puesto no encontrado.</p>
+        <p style={{ fontSize: '1.25rem', color: '#dc2626' }}>🏪 {error || 'Puesto no encontrado.'}</p>
         <Link to="/" style={{ color: '#243474', textDecoration: 'underline' }}>Regresar al inicio</Link>
       </div>
     );
@@ -49,15 +59,33 @@ export default function Puesto() {
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <h1 className="titulo-seccion">Productos</h1>
           <p style={{ color: '#666', marginTop: '0.5rem' }}>
-            Inventario actual de: <span style={{ fontWeight: 'bold', color: '#243474' }}>{puesto.nombrePuesto}</span>
+            Inventario actual de: <span style={{ fontWeight: 'bold', color: '#243474' }}>{datosPuesto.nombre_puesto}</span>
           </p>
+          <span style={{ fontSize: '0.85rem', backgroundColor: '#e5e7eb', padding: '0.25rem 0.75rem', borderRadius: '1rem', color: '#4b5563', fontWeight: '500' }}>
+            Giro: {datosPuesto.nombre_categoria}
+          </span>
         </div>
 
-        <div className="lista-productos-vertical">
-          {puesto.productos.map((prod) => (
-            <ProductCard key={prod.id} producto={prod} />
-          ))}
-        </div>
+        {productos.length === 0 ? (
+          <p style={{ textAlign: 'center', color: '#9ca3af', fontStyle: 'italic', marginTop: '2rem' }}>
+            Este puesto se quedó sin mercancía por hoy. 🛒
+          </p>
+        ) : (
+          <div className="lista-productos-vertical">
+            {productos.map((prod) => (
+              <ProductCard 
+                key={prod.id_producto} 
+                producto={{
+                  id: prod.id_producto,
+                  nombre: prod.nombre_producto,
+                  precio: prod.precio,
+                  stock: prod.stock,
+                  destacado: prod.destacado
+                }} 
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

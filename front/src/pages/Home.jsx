@@ -1,25 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TianguisCard from '../components/TianguisCard';
-
-const mockTianguis = [
-  { id: 1, nombrePuesto: "El Palacio de las Papas", comerciante: "Don Chencho", categoria: "Frutas y Verduras" },
-  { id: 2, nombrePuesto: "Novedades y Ropa 'La Güera'", comerciante: "Doña Mary", categoria: "Ropa y Calzado" },
-  { id: 3, nombrePuesto: "Abarrotes 'El Primo'", comerciante: "Carlos", categoria: "Semillas y Secos" }
-];
 
 export default function Home() {
   const [busqueda, setBusqueda] = useState('');
+  const [puestos, setPuestos] = useState([]);
+  const [error, setError] = useState('');
+  const [cargando, setCargando] = useState(true);
 
-  const puestosFiltrados = mockTianguis.filter(puesto =>
-    puesto.nombrePuesto.toLowerCase().includes(busqueda.toLowerCase()) ||
-    puesto.categoria.toLowerCase().includes(busqueda.toLowerCase())
+  useEffect(() => {
+    const obtenerPuestosYEstrellas = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/tianguis/puestos');
+        const data = await response.json();
+        
+        if (!response.ok) throw new Error(data.error || 'Error al obtener puestos.');
+        
+        setPuestos(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    obtenerPuestosYEstrellas();
+  }, []);
+
+  const puestosFiltrados = puestos.filter(puesto =>
+    puesto.nombre_puesto.toLowerCase().includes(busqueda.toLowerCase()) ||
+    puesto.nombre_categoria.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   return (
-    <div style={{ padding: '2.5rem 1rem' }}>
+    <div style={{ padding: '2.5rem 1rem', backgroundColor: '#f9fafb', minHeight: '100vh' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <h1 className="titulo-seccion">Locales</h1>
+          <h1 className="titulo-seccion">Locales del Tianguis</h1>
         </div>
 
         <div style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
@@ -39,14 +55,25 @@ export default function Home() {
           />
         </div>
 
-        {puestosFiltrados.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#666', fontStyle: 'italic' }}>
-            No se encontraron puestos.
-          </p>
+        {error && <div className="alerta-error" style={{ textAlign: 'center' }}>⚠️ {error}</div>}
+
+        {cargando ? (
+          <p style={{ textAlign: 'center', color: '#666', fontStyle: 'italic' }}>Abriendo puestos...</p>
+        ) : puestosFiltrados.length === 0 ? (
+          <p style={{ textAlign: 'center', color: '#666', fontStyle: 'italic' }}>No se encontraron puestos.</p>
         ) : (
           <div className="grid-locales">
             {puestosFiltrados.map((puesto) => (
-              <TianguisCard key={puesto.id} puesto={puesto} />
+              <TianguisCard 
+                key={puesto.id_comerciante} 
+                puesto={{
+                  id: puesto.id_comerciante, 
+                  nombrePuesto: puesto.nombre_puesto,
+                  comerciante: puesto.nombre_comerciante,
+                  categoria: puesto.nombre_categoria,
+                  estrellas: puesto.productos_estrella // <-- Pasamos el arreglo de productos estrella aquí
+                }} 
+              />
             ))}
           </div>
         )}

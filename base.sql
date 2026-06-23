@@ -60,3 +60,5 @@ INSERT INTO categorias_catalogo (nombre_categoria) VALUES
 ('Ropa, Calzado y Textiles'),
 ('Novedades, Electrónica y Chácharas');
 GO
+
+-- Tianguis2026

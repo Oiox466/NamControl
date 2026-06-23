@@ -4,12 +4,13 @@ import { useNavigate, Link } from 'react-router-dom';
 function Register() {
   const [nombrePuesto, setNombrePuesto] = useState('');
   const [comerciante, setComerciante] = useState('');
-  const [categoria, setCategoria] = useState('Frutas y Verduras');
+  // Inicializamos con '1' que corresponde a 'Canasta Básica y Alimentos sin procesar'
+  const [categoria, setCategoria] = useState('1'); 
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -18,9 +19,36 @@ function Register() {
       return;
     }
 
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('nombrePuesto', nombrePuesto);
-    navigate('/dashboard');
+    try {
+      // Petición al Back-end
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombre_puesto: nombrePuesto,
+          nombre_comerciante: comerciante,
+          id_categoria: parseInt(categoria), // Aseguramos que viaje como número entero
+          password: password
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Si el Back-end arroja un error (ej. status 400 o 500) lo mostramos
+        throw new Error(data.error || 'Hubo un error al registrar el puesto.');
+      }
+
+      // Si todo sale bien, guardamos sesión local y navegamos al dashboard
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('nombrePuesto', nombrePuesto);
+      navigate('/dashboard');
+
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -64,11 +92,12 @@ function Register() {
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
           >
-            <option value="Frutas y Verduras">Frutas y Verduras</option>
-            <option value="Ropa y Calzado">Ropa y Calzado</option>
-            <option value="Semillas y Secos">Semillas y Secos</option>
-            <option value="Comida Preparada">Comida Preparada</option>
-            <option value="Otros">Otros</option>
+            {/* Los values numéricos corresponden exactamente a los IDs de tu base de datos */}
+            <option value="1">Canasta Básica y Alimentos sin procesar</option>
+            <option value="2">Comidas, Bebidas y Antojitos</option>
+            <option value="3">Artículos del Hogar y Herramientas</option>
+            <option value="4">Ropa, Calzado y Textiles</option>
+            <option value="5">Novedades, Electrónica y Chácharas</option>
           </select>
         </div>
 

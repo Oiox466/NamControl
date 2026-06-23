@@ -4,69 +4,135 @@ import { useNavigate } from 'react-router-dom';
 function Dashboard() {
   const navigate = useNavigate();
   const [nombrePuesto, setNombrePuesto] = useState('Mi Puesto');
+  const [idComerciante, setIdComerciante] = useState(null);
+  
+  // Estado inicializado vacío para recibir los datos de SQL Server
+  const [productos, setProductos] = useState([]);
 
-  const [productos, setProductos] = useState([
-    { id: 1, nombre: "Papa Alfa", stock: "45 kg", precio: "$22.00" },
-    { id: 2, nombre: "Cebolla Bola", stock: "12 kg", precio: "$18.00" }
-  ]);
-
+  // Controladores de interfaz y formulario
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
   const [formNombre, setFormNombre] = useState('');
   const [formStock, setFormStock] = useState('');
   const [formPrecio, setFormPrecio] = useState('');
+  const [formDestacado, setFormDestacado] = useState(false); // Nuevo estado para destacar
 
+  // 1. CARGAR DATOS AL INICIAR EL COMPONENTE
   useEffect(() => {
     const logged = localStorage.getItem('isLoggedIn');
     const puestoGuardado = localStorage.getItem('nombrePuesto');
-    if (!logged) {
+    const id = localStorage.getItem('idComerciante');
+
+    if (!logged || !id) {
       navigate('/login');
-    } else if (puestoGuardado) {
-      setNombrePuesto(puestoGuardado);
+    } else {
+      setIdComerciante(id);
+      if (puestoGuardado) setNombrePuesto(puestoGuardado);
+      cargarProductos(id); // Trae el inventario real de la base de datos
     }
   }, [navigate]);
+
+  // READ: Obtener productos desde el Back-end
+  const cargarProductos = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/productos/comerciante/${id}`);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      setProductos(data);
+    } catch (err) {
+      alert(err.message || 'Error al conectar con el inventario');
+    }
+  };
 
   const handleOpenCrear = () => {
     setEditandoId(null);
     setFormNombre('');
     setFormStock('');
     setFormPrecio('');
+    setFormDestacado(false);
     setIsModalOpen(true);
   };
 
   const handleOpenEditar = (prod) => {
-    setEditandoId(prod.id);
-    setFormNombre(prod.nombre);
+    // Los campos de la base de datos vienen mapeados como id_producto, nombre_producto, etc.
+    setEditandoId(prod.id_producto);
+    setFormNombre(prod.nombre_producto);
     setFormStock(prod.stock);
-    setFormPrecio(prod.precio);
+    setFormPrecio(prod.precio.toString());
+    setFormDestacado(prod.destacado);
     setIsModalOpen(true);
   };
 
-  const handleGuardar = (e) => {
+  // CREATE y UPDATE: Guardar datos en el servidor remoto
+  const handleGuardar = async (e) => {
     e.preventDefault();
-    if (!formNombre || !formStock || !formPrecio) return alert('Llena todos los campos');
+    if (!formNombre || formStock === '' || !formPrecio) return alert('Llena todos los campos');
 
-    if (editandoId) {
-      setProductos(productos.map(p => 
-        p.id === editandoId 
-          ? { ...p, nombre: formNombre, stock: formStock, precio: formPrecio } 
-          : p
-      ));
-    } else {
-      const nuevoProducto = {
-        id: Date.now(),
-        nombre: formNombre,
-        stock: formStock,
-        precio: formPrecio.startsWith('$') ? formPrecio : `$${formPrecio}`
-      };
-      setProductos([...productos, nuevoProducto]);
+    // Validación local preventiva para no saturar al servidor
+    if (formDestacado) {
+      const totalDestacados = productos.filter(p => p.destacado && p.id_producto !== editandoId).length;
+      if (totalDestacados >= 3) {
+        return alert('⚠️ No puedes destacar este producto. Ya alcanzaste el límite máximo de 3.');
+      }
     }
-    setIsModalOpen(false);
+
+    // Limpieza de datos numéricos
+    const precioNumerico = parseFloat(formPrecio.replace(/[^0-9.]/g, ''));
+    const stockNumerico = parseInt(formStock.toString().replace(/[^0-9]/g, ''));
+
+    if (isNaN(precioNumerico) || isNaN(stockNumerico)) {
+      return alert('Ingresa valores numéricos válidos en precio y stock');
+    }
+
+    const datosProducto = {
+      id_comerciante: parseInt(idComerciante),
+      nombre_producto: formNombre,
+      descripcion: '', // Requerido por el backend
+      precio: precioNumerico,
+      stock: stockNumerico,
+      destacado: formDestacado
+    };
+
+    try {
+      let url = 'http://localhost:5000/api/productos';
+      let metodo = 'POST';
+
+      if (editandoId) {
+        url = `http://localhost:5000/api/productos/${editandoId}`;
+        metodo = 'PUT';
+      }
+
+      const response = await fetch(url, {
+        method: metodo,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datosProducto)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.error || 'Ocurrió un error en la transacción.');
+
+      setIsModalOpen(false);
+      cargarProductos(idComerciante); // Recargar la tabla con la información actualizada
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
-  const handleEliminar = (id) => {
+  // DELETE: Eliminar registro en base de datos
+  const handleEliminar = async (id) => {
     if (window.confirm('¿Seguro que quieres eliminar este producto?')) {
-      setProductos(productos.filter(p => p.id !== id));
+      try {
+        const response = await fetch(`http://localhost:5000/api/productos/${id}`, {
+          method: 'DELETE'
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+        
+        cargarProductos(idComerciante); // Actualizar la tabla inmediatamente
+      } catch (err) {
+        alert(err.message);
+      }
     }
   };
 
@@ -109,23 +175,27 @@ function Dashboard() {
                   <th>Producto</th>
                   <th>Precio</th>
                   <th>Stock disponible</th>
+                  <th style={{ textAlign: 'center' }}>Destacado</th>
                   <th style={{ textAlign: 'center' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {productos.map((prod) => (
-                  <tr key={prod.id}>
-                    <td style={{ fontWeight: 'bold' }}>{prod.nombre}</td>
-                    <td style={{ color: '#6b7280' }}>{prod.precio}</td>
+                  <tr key={prod.id_producto}>
+                    <td style={{ fontWeight: 'bold' }}>{prod.nombre_producto}</td>
+                    <td style={{ color: '#6b7280' }}>${prod.precio.toFixed(2)}</td>
                     <td>
-                      <span className="badge-stock">{prod.stock}</span>
+                      <span className="badge-stock">{prod.stock} pz</span>
+                    </td>
+                    <td style={{ textAlign: 'center', fontSize: '1.25rem' }}>
+                      {prod.destacado ? '⭐' : '⚪'}
                     </td>
                     <td style={{ padding: '0.5rem' }}>
                       <div className="acciones-flex" style={{ justifyContent: 'center' }}>
                         <button onClick={() => handleOpenEditar(prod)} className="btn-accion-tabla btn-editar">
                           ✏️ Editar
                         </button>
-                        <button onClick={() => handleEliminar(prod.id)} className="btn-accion-tabla btn-eliminar">
+                        <button onClick={() => handleEliminar(prod.id_producto)} className="btn-accion-tabla btn-eliminar">
                           🗑️ Eliminar
                         </button>
                       </div>
@@ -162,7 +232,7 @@ function Dashboard() {
 
               <div className="grid-modal-2">
                 <div className="grupo-formulario">
-                  <label>Precio</label>
+                  <label>Precio ($)</label>
                   <input
                     type="text"
                     placeholder="Ej. 25.00"
@@ -175,12 +245,26 @@ function Dashboard() {
                   <label>Stock / Cantidad</label>
                   <input
                     type="text"
-                    placeholder="Ej. 20 kg"
+                    placeholder="Ej. 20"
                     className="input-control"
                     value={formStock}
                     onChange={(e) => setFormStock(e.target.value)}
                   />
                 </div>
+              </div>
+
+              {/* Implementación del requerimiento: Destacar productos */}
+              <div className="grupo-formulario" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
+                <input
+                  type="checkbox"
+                  id="checkbox-destacado"
+                  checked={formDestacado}
+                  onChange={(e) => setFormDestacado(e.target.checked)}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                />
+                <label htmlFor="checkbox-destacado" style={{ margin: 0, cursor: 'pointer', fontWeight: 'bold' }}>
+                  ⭐ Destacar este producto en el Tianguis (Máx. 3)
+                </label>
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
