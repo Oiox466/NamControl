@@ -35,48 +35,47 @@ export const registrarComerciante = async (req, res) => {
 };
 
 export const loginComerciante = async (req, res) => {
-  const { nombre_puesto, password } = req.body;
+    const { nombre_puesto, password } = req.body;
 
-  // 1. Validar campos obligatorios
-  if (!nombre_puesto || !password) {
-    return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
-  }
-
-  try {
-    const pool = await getConnection();
-
-    // 2. Buscar al comerciante por el nombre del puesto
-    const resultado = await pool.request()
-      .input('nombre_puesto', mssql.VarChar(100), nombre_puesto)
-      .query('SELECT * FROM comerciantes WHERE nombre_puesto = @nombre_puesto');
-
-    // Si no encuentra ningún registro con ese nombre de puesto
-    if (resultado.recordset.length === 0) {
-      return res.status(401).json({ error: 'El nombre del puesto o la contraseña son incorrectos.' });
+    // 1. Validar campos obligatorios
+    if (!nombre_puesto || !password) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
     }
 
-    const comerciante = resultado.recordset[0];
+    try {
+        const pool = await getConnection();
 
-    // 3. Comparar la contraseña ingresada con el hash encriptado de la BD
-    const passwordValido = await bcrypt.compare(password, comerciante.password);
+        // 2. Buscar al comerciante por el nombre del puesto
+        const resultado = await pool.request()
+        .input('nombre_puesto', mssql.VarChar(100), nombre_puesto)
+        .query('SELECT * FROM comerciantes WHERE nombre_puesto = @nombre_puesto');
 
-    if (!passwordValido) {
-      return res.status(401).json({ error: 'El nombre del puesto o la contraseña son incorrectos.' });
+        // Si no encuentra ningún registro con ese nombre de puesto
+        if (resultado.recordset.length === 0) {
+        return res.status(401).json({ error: 'El nombre del puesto o la contraseña son incorrectos.' });
+        }
+
+        const comerciante = resultado.recordset[0];
+
+        // 3. Comparar la contraseña ingresada con el hash encriptado de la BD
+        const passwordValido = await bcrypt.compare(password, comerciante.password);
+
+        if (!passwordValido) {
+        return res.status(401).json({ error: 'El nombre del puesto o la contraseña son incorrectos.' });
+        }
+
+        // 4. Si todo es correcto, responder con los datos de éxito
+        res.json({
+        mensaje: 'Inicio de sesión exitoso.',
+        comerciante: {
+            id_comerciante: comerciante.id_comerciante,
+            nombre_puesto: comerciante.nombre_puesto,
+            nombre_comerciante: comerciante.nombre_comerciante
+        }
+        });
+
+    } catch (error) {
+        console.error('Error en el login:', error);
+        res.status(500).json({ error: 'Hubo un error en el servidor al iniciar sesión.' });
     }
-
-    // 4. Si todo es correcto, responder con los datos de éxito
-    // Mandamos el id y nombre para guardarlo en el Front-end y saber qué productos mostrar después
-    res.json({
-      mensaje: 'Inicio de sesión exitoso.',
-      comerciante: {
-        id_comerciante: comerciante.id_comerciante,
-        nombre_puesto: comerciante.nombre_puesto,
-        nombre_comerciante: comerciante.nombre_comerciante
-      }
-    });
-
-  } catch (error) {
-    console.error('Error en el login:', error);
-    res.status(500).json({ error: 'Hubo un error en el servidor al iniciar sesión.' });
-  }
 };

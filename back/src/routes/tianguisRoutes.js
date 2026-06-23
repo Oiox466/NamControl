@@ -3,7 +3,6 @@ import { getPuestosHome, getPuestoDetalle } from '../controllers/tianguisControl
 
 const router = Router();
 
-// Ruta para listar todos los puestos en la página principal
 router.get('/puestos', getPuestosHome);
 router.get('/puesto/:id_comerciante', getPuestoDetalle);
 

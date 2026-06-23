@@ -9,7 +9,7 @@ export default function TianguisCard({ puesto }) {
       <div className="tarjeta-header-verde">🛒</div>
       <div className="tarjeta-body">
         <h3 className="tarjeta-titulo">{puesto.nombrePuesto}</h3>
-        <p className="tarjeta-subtitulo">Giro: {puesto.categoria}</p>
+        <p className="tarjeta-subtitulo">Tipo: {puesto.categoria}</p>
         
         <div>
           <p style={{ fontWeight: 'bold', fontSize: '0.875rem', margin: '0' }}>Productos estrella</p>

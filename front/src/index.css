@@ -1,8 +1,23 @@
+/* ==========================================================================
+   1. CONFIGURACIÓN GLOBAL Y RESET
+   ========================================================================== */
+* {
+  box-sizing: border-box;
+}
+
 body {
   background-color: #e5e5e7;
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   margin: 0;
   padding: 0;
+  color: #1f2937;
+  line-height: 1.5;
+}
+
+.contenedor-principal {
+  max-width: 1600px; 
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
 .titulo-seccion {
@@ -13,6 +28,45 @@ body {
   text-align: center;
 }
 
+/* ==========================================================================
+   2. NAVBAR GLOBAL
+   ========================================================================== */
+.navbar-global {
+  background-color: #243474;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.navbar-btn {
+  background-color: #78c044;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: bold;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  display: inline-block;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+}
+
+.navbar-btn:hover {
+  opacity: 0.9;
+}
+
+/* ==========================================================================
+   3. VISTAS DE PÚBLICAS (HOME / TARJETAS / COMPONENTES)
+   ========================================================================== */
 .grid-locales {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -27,7 +81,7 @@ body {
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
 }
 
@@ -40,7 +94,6 @@ body {
   height: 12rem;
   display: flex;
   justify-content: center;
-  items-center: center;
   align-items: center;
   font-size: 3.75rem;
 }
@@ -89,6 +142,9 @@ body {
   font-weight: 500;
 }
 
+/* ==========================================================================
+   4. VISTA DE PRODUCTOS INDIVIDUALES
+   ========================================================================== */
 .lista-productos-vertical {
   display: flex;
   flex-direction: column;
@@ -102,7 +158,7 @@ body {
   display: flex;
   height: 12rem;
   position: relative;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .boton-cerrar {
@@ -144,60 +200,16 @@ body {
   font-weight: bold;
 }
 
-/* --- CONFIGURACIÓN GLOBAL --- */
-body {
-  background-color: #e5e5e7;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  margin: 0;
-  padding: 0;
-  color: #1f2937;
-}
-
-/* --- NAVBAR GLOBAL --- */
-.navbar-global {
-  background-color: #243474; /* Azul de tus maquetas */
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.navbar-brand {
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.navbar-btn {
-  background-color: #78c044; /* Verde de tus maquetas */
-  color: #ffffff;
-  text-decoration: none;
-  padding: 0.5rem 1.25rem;
-  border-radius: 0.75rem;
-  font-weight: bold;
-  transition: opacity 0.2s;
-}
-
-.navbar-btn:hover {
-  opacity: 0.9;
-}
-
-.contenedor-principal {
-  max-w: 1100px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-/* --- VISTAS DE AUTENTICACIÓN (LOGIN / REGISTER) --- */
+/* ==========================================================================
+   5. FORMULARIOS DE AUTENTICACIÓN (LOGIN / REGISTER)
+   ========================================================================== */
 .contenedor-auth {
   max-width: 420px;
   margin: 4rem auto;
   background: #ffffff;
   padding: 2rem;
   border-radius: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .auth-header {
@@ -243,6 +255,9 @@ body {
   border-color: #243474;
 }
 
+/* ==========================================================================
+   6. BOTONES Y ALERTAS GENERALES
+   ========================================================================== */
 .btn-primario {
   width: 100%;
   background-color: #243474;
@@ -259,6 +274,19 @@ body {
   background-color: #78c044;
 }
 
+.btn-danger {
+  background: none;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background-color: #fef2f2;
+}
+
 .alerta-error {
   background-color: #fee2e2;
   border-left: 4px solid #ef4444;
@@ -269,7 +297,9 @@ body {
   margin-bottom: 1.25rem;
 }
 
-/* --- DASHBOARD / PANEL --- */
+/* ==========================================================================
+   7. DASHBOARD / PANEL Y TABLAS (CRUD)
+   ========================================================================== */
 .header-dashboard {
   background: #ffffff;
   padding: 1.5rem;
@@ -292,25 +322,11 @@ body {
   text-transform: uppercase;
 }
 
-.btn-danger {
-  background: none;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
-  cursor: pointer;
-}
-
-.btn-danger:hover {
-  background-color: #fef2f2;
-}
-
-/* --- TABLAS (CRUD) --- */
 .contenedor-tabla {
   background: #ffffff;
   border-radius: 1.5rem;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .tabla-titulo-barra {
@@ -364,7 +380,9 @@ body {
 .btn-editar { color: #1d4ed8; background: #dbeafe; }
 .btn-eliminar { color: #b91c1c; background: #fee2e2; }
 
-/* --- MODAL FLOTANTE --- */
+/* ==========================================================================
+   8. VENTANAS MODALES FLOTANTES
+   ========================================================================== */
 .modal-overlay {
   position: fixed;
   inset: 0;

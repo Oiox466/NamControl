@@ -71,7 +71,7 @@ export default function Home() {
                   nombrePuesto: puesto.nombre_puesto,
                   comerciante: puesto.nombre_comerciante,
                   categoria: puesto.nombre_categoria,
-                  estrellas: puesto.productos_estrella // <-- Pasamos el arreglo de productos estrella aquí
+                  estrellas: puesto.productos_estrella
                 }} 
               />
             ))}

@@ -173,7 +173,7 @@ function Dashboard() {
               <thead>
                 <tr>
                   <th>Producto</th>
-                  <th>Precio</th>
+                  <th>Precio MXN</th>
                   <th>Stock disponible</th>
                   <th style={{ textAlign: 'center' }}>Destacado</th>
                   <th style={{ textAlign: 'center' }}>Acciones</th>
@@ -232,7 +232,7 @@ function Dashboard() {
 
               <div className="grid-modal-2">
                 <div className="grupo-formulario">
-                  <label>Precio ($)</label>
+                  <label>Precio ($MXN)</label>
                   <input
                     type="text"
                     placeholder="Ej. 25.00"

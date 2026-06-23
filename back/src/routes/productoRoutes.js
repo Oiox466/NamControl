@@ -8,9 +8,9 @@ import {
 
 const router = Router();
 
-router.get('/comerciante/:id_comerciante', getProductosPorComerciante); // Obtener inventario
-router.post('/', crearProducto);                                      // Agregar nuevo
-router.put('/:id_producto', actualizarProducto);                      // Editar
-router.delete('/:id_producto', eliminarProducto);                    // Eliminar
+router.get('/comerciante/:id_comerciante', getProductosPorComerciante);
+router.post('/', crearProducto);
+router.put('/:id_producto', actualizarProducto);
+router.delete('/:id_producto', eliminarProducto);
 
 export default router;

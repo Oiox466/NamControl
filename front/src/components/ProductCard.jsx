@@ -1,6 +1,14 @@
 import React from 'react';
 
 export default function ProductCard({ producto }) {
+  // Función auxiliar para formatear el símbolo de la moneda dinámicamente
+  const obtenerSimboloMoneda = () => {
+    if (!producto.divisa || producto.divisa === 'MXN') return '$';
+    if (producto.divisa === 'USD') return 'USD $';
+    if (producto.divisa === 'EUR') return 'EUR €';
+    return '$';
+  };
+
   return (
     <div className="tarjeta-producto" style={{ position: 'relative' }}>
       
@@ -20,7 +28,7 @@ export default function ProductCard({ producto }) {
         </h4>
         
         <p className="info-linea">
-          <span className="info-label">Precio</span> ${producto.precio.toFixed(2)}
+          <span className="info-label">Precio</span> {obtenerSimboloMoneda()}{producto.precio.toFixed(2)}
         </p>
         
         <p className="info-linea">
